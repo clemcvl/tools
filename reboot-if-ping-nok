@@ -1,20 +1,21 @@
 #!/bin/sh
 
 #Wait for be sure network is up and add a safety
+host=192.168.1.1
 sleep 70
 
 while true; do
-ping -c1 192.168.1.1 > /dev/null 2>&1
+loss=`ping -c 10 -q $host | grep -oP '\d+(?=% packet loss)'`
 
-if [ $? -eq 0 ]; then
-    NOW=$(date +"%m-%d-%Y")
-    echo "$NOW - ok" >> /tmp/reboot.txt
-else
+if [ $loss -eq '100' ]; then
     NOW=$(date +"%m-%d-%Y")
     echo "$NOW - reboot" >> /tmp/reboot.txt
     reboot
     exit 1
+else
+    NOW=$(date +"%m-%d-%Y")
+    echo "$NOW - ok" >> /tmp/reboot.txt
 fi
-sleep 10
+sleep 5
 
 done
